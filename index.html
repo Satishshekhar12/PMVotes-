@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PM Voting</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+        h1 {
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
+        form {
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+        button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        p#message {
+            text-align: center;
+            margin-top: 10px;
+        }
+        #results {
+            text-align: center;
+            margin-top: 30px;
+        }
+        h2 {
+            color: #333;
+        }
+        p.result {
+            color: #555;
+        }
+        p.result span {
+            color: #f36f6f;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        function vote() {
+            const selectedCandidate = document.querySelector('input[name="candidate"]:checked');
+            const message = document.getElementById("message");
+
+            if (selectedCandidate) {
+                // Check if user has voted before
+                if (localStorage.getItem("voted")) {
+                    message.textContent = "You've already voted!";
+                } else {
+                    // Simulate sending data to the server (replace with actual server-side code)
+                    // Example server-side code could be in PHP
+                    // Example: sendVoteToServer(selectedCandidate.value);
+
+                    // Mark user as voted and store IP address in localStorage
+                    localStorage.setItem("voted", true);
+                    message.textContent = "Thank you for voting!";
+                    
+                    // Update the voting results
+                    updateResults(selectedCandidate.value);
+                }
+            } else {
+                message.textContent = "Please select a candidate.";
+            }
+        }
+
+        function updateResults(candidate) {
+            const candidateElement = document.getElementById(`${candidate.toLowerCase().replace(" ", "")}Votes`);
+            if (candidateElement) {
+                const currentVotes = parseInt(candidateElement.textContent.match(/\d+/)[0]);
+                candidateElement.textContent = `${candidate}: ${currentVotes + 1}`;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Vote for PM Candidate</h1>
+    <form>
+        <label>
+            <input type="radio" name="candidate" value="Narendra Modi"> Narendra Modi
+        </label>
+        <br>
+        <label>
+            <input type="radio" name="candidate" value="Rahul Gandhi"> Rahul Gandhi
+        </label>
+        <br>
+        <label>
+            <input type="radio" name="candidate" value="Arvind Kejriwal"> Arvind Kejriwal
+        </label>
+        <br>
+        <label>
+            <input type="radio" name="candidate" value="Others"> Others
+        </label>
+        <br>
+        <button type="button" onclick="vote()">Vote</button>
+        <p id="message"></p>
+    </form>
+
+    <div id="results">
+        <h2>Current Voting Results</h2>
+        <p class="result" id="narendraModiVotes">Narendra Modi: <span>0</span></p>
+        <p class="result" id="rahulGandhiVotes">Rahul Gandhi: <span>0</span></p>
+        <p class="result" id="arvindKejriwalVotes">Arvind Kejriwal: <span>0</span></p>
+        <p class="result" id="othersVotes">Others: <span>0</span></p>
+    </div>
+</body>
+</html>
