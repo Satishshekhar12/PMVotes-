@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>PM Voting System</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <style>
   body {
@@ -69,7 +70,8 @@ h2 {
 .others {
   background-color: #4caf50;
   color: #fff;
-}</style>
+}
+ </style>
 <body>
   <h1>PM Voting System</h1>
   
@@ -91,43 +93,44 @@ h2 {
   <h2>Voting Results</h2>
   <div id="results"></div>
   
-  <script>var voteCount = {
+  <script >var storedVoteCount = localStorage.getItem("voteCount");
+var voteCount = {
   modi: 0,
   gandhi: 0,
   kejriwal: 0,
   others: 0
 };
+if (storedVoteCount) {
+  voteCount = JSON.parse(storedVoteCount);
+}
+
+// Check if the user has already voted
+var userIP = getUserIP();
+var votedIPs = localStorage.getItem("votedIPs");
+if (votedIPs && votedIPs.includes(userIP)) {
+  disableVoting();
+} else {
+  enableVoting();
+}
 
 document.getElementById("votingForm").addEventListener("submit", function(event) {
   event.preventDefault();
-  
+
   var candidate = document.getElementById("candidate").value;
-  
+
   // Check if the user has already voted
-  var userIP = getUserIP();
-  var votedIPs = localStorage.getItem("votedIPs");
   if (votedIPs && votedIPs.includes(userIP)) {
     alert("You have already voted!");
     return;
   }
-  
+
   // Increment the vote count for the selected candidate
-  switch (candidate) {
-    case "modi":
-      voteCount.modi++;
-      break;
-    case "gandhi":
-      voteCount.gandhi++;
-      break;
-    case "kejriwal":
-      voteCount.kejriwal++;
-      break;
-    case "others":
-      voteCount.others++;
-      break;
-  }
-  
-  // Store the user's IP in localStorage to prevent multiple votes
+  voteCount[candidate]++;
+
+  // Store the vote count in local storage
+  localStorage.setItem("voteCount", JSON.stringify(voteCount));
+
+  // Store the user's IP in local storage to prevent multiple votes
   if (userIP) {
     if (votedIPs) {
       votedIPs += "," + userIP;
@@ -136,7 +139,8 @@ document.getElementById("votingForm").addEventListener("submit", function(event)
     }
     localStorage.setItem("votedIPs", votedIPs);
   }
-  
+
+  disableVoting();
   displayResults();
 });
 
@@ -144,10 +148,20 @@ document.getElementById("showResultsButton").addEventListener("click", function(
   displayResults();
 });
 
+function disableVoting() {
+  document.getElementById("candidate").disabled = true;
+  document.querySelector("#votingForm button[type='submit']").disabled = true;
+}
+
+function enableVoting() {
+  document.getElementById("candidate").disabled = false;
+  document.querySelector("#votingForm button[type='submit']").disabled = false;
+}
+
 function displayResults() {
   var resultsDiv = document.getElementById("results");
   resultsDiv.innerHTML = "";
-  
+
   for (var candidate in voteCount) {
     var result = document.createElement("p");
     result.innerHTML = candidate + ": " + voteCount[candidate] + " votes";
@@ -160,18 +174,21 @@ function getUserIP() {
   // Make an API call to get the user's IP address
   // Replace <YOUR_API_KEY> with your actual API key
   var apiUrl = "https://api.ipify.org?format=json";
-  
+
   var xhr = new XMLHttpRequest();
   xhr.open("GET", apiUrl, false);
   xhr.send();
-  
+
   if (xhr.status === 200) {
     var response = JSON.parse(xhr.responseText);
     return response.ip;
   }
-  
+
   return null;
 }
+
+// Call displayResults initially to show any existing results
+displayResults();
   </script>
 </body>
   </html>
