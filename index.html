@@ -1,126 +1,177 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PM Voting</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f2f2f2;
-        }
-        h1 {
-            text-align: center;
-            padding: 20px;
-            color: #333;
-        }
-        form {
-            text-align: center;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        label {
-            display: block;
-            margin-bottom: 10px;
-        }
-        input[type="radio"] {
-            margin-right: 5px;
-        }
-        button {
-            background-color: #333;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        p#message {
-            text-align: center;
-            margin-top: 10px;
-        }
-        #results {
-            text-align: center;
-            margin-top: 30px;
-        }
-        h2 {
-            color: #333;
-        }
-        p.result {
-            color: #555;
-        }
-        p.result span {
-            color: #f36f6f;
-            font-weight: bold;
-        }
-    </style>
-    <script>
-        function vote() {
-            const selectedCandidate = document.querySelector('input[name="candidate"]:checked');
-            const message = document.getElementById("message");
-
-            if (selectedCandidate) {
-                // Check if user has voted before
-                if (localStorage.getItem("voted")) {
-                    message.textContent = "You've already voted!";
-                } else {
-                    // Simulate sending data to the server (replace with actual server-side code)
-                    // Example server-side code could be in PHP
-                    // Example: sendVoteToServer(selectedCandidate.value);
-
-                    // Mark user as voted and store IP address in localStorage
-                    localStorage.setItem("voted", true);
-                    message.textContent = "Thank you for voting!";
-                    
-                    // Update the voting results
-                    updateResults(selectedCandidate.value);
-                }
-            } else {
-                message.textContent = "Please select a candidate.";
-            }
-        }
-
-        function updateResults(candidate) {
-            const candidateElement = document.getElementById(`${candidate.toLowerCase().replace(" ", "")}Votes`);
-            if (candidateElement) {
-                const currentVotes = parseInt(candidateElement.textContent.match(/\d+/)[0]);
-                candidateElement.textContent = `${candidate}: ${currentVotes + 1}`;
-            }
-        }
-    </script>
+  <title>PM Voting System</title>
 </head>
-<body>
-    <h1>Vote for PM Candidate</h1>
-    <form>
-        <label>
-            <input type="radio" name="candidate" value="Narendra Modi"> Narendra Modi
-        </label>
-        <br>
-        <label>
-            <input type="radio" name="candidate" value="Rahul Gandhi"> Rahul Gandhi
-        </label>
-        <br>
-        <label>
-            <input type="radio" name="candidate" value="Arvind Kejriwal"> Arvind Kejriwal
-        </label>
-        <br>
-        <label>
-            <input type="radio" name="candidate" value="Others"> Others
-        </label>
-        <br>
-        <button type="button" onclick="vote()">Vote</button>
-        <p id="message"></p>
-    </form>
+<style>
+  body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
 
-    <div id="results">
-        <h2>Current Voting Results</h2>
-        <p class="result" id="narendraModiVotes">Narendra Modi: <span>0</span></p>
-        <p class="result" id="rahulGandhiVotes">Rahul Gandhi: <span>0</span></p>
-        <p class="result" id="arvindKejriwalVotes">Arvind Kejriwal: <span>0</span></p>
-        <p class="result" id="othersVotes">Others: <span>0</span></p>
-    </div>
+h1 {
+  text-align: center;
+}
+
+form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+}
+
+select {
+  width: 100%;
+  padding: 5px;
+  font-size: 16px;
+}
+
+button {
+  display: block;
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+h2 {
+  margin-top: 30px;
+}
+
+#results p {
+  margin: 5px 0;
+}
+
+.modi {
+  background-color: #ff9800;
+  color: #fff;
+}
+
+.gandhi {
+  background-color: #9c27b0;
+  color: #fff;
+}
+
+.kejriwal {
+  background-color: #03a9f4;
+  color: #fff;
+}
+
+.others {
+  background-color: #4caf50;
+  color: #fff;
+}</style>
+<body>
+  <h1>PM Voting System</h1>
+  
+  <form id="votingForm">
+    <label for="candidate">Select a candidate:</label>
+    <select id="candidate" name="candidate">
+      <option value="modi">Narendra Modi</option>
+      <option value="gandhi">Rahul Gandhi</option>
+      <option value="kejriwal">Arvind Kejriwal</option>
+      <option value="others">Others</option>
+    </select>
+    
+    <br><br>
+    
+    <button type="submit">Vote</button>
+    <button type="button" id="showResultsButton">Show Results</button>
+  </form>
+  
+  <h2>Voting Results</h2>
+  <div id="results"></div>
+  
+  <script>var voteCount = {
+  modi: 0,
+  gandhi: 0,
+  kejriwal: 0,
+  others: 0
+};
+
+document.getElementById("votingForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+  
+  var candidate = document.getElementById("candidate").value;
+  
+  // Check if the user has already voted
+  var userIP = getUserIP();
+  var votedIPs = localStorage.getItem("votedIPs");
+  if (votedIPs && votedIPs.includes(userIP)) {
+    alert("You have already voted!");
+    return;
+  }
+  
+  // Increment the vote count for the selected candidate
+  switch (candidate) {
+    case "modi":
+      voteCount.modi++;
+      break;
+    case "gandhi":
+      voteCount.gandhi++;
+      break;
+    case "kejriwal":
+      voteCount.kejriwal++;
+      break;
+    case "others":
+      voteCount.others++;
+      break;
+  }
+  
+  // Store the user's IP in localStorage to prevent multiple votes
+  if (userIP) {
+    if (votedIPs) {
+      votedIPs += "," + userIP;
+    } else {
+      votedIPs = userIP;
+    }
+    localStorage.setItem("votedIPs", votedIPs);
+  }
+  
+  displayResults();
+});
+
+document.getElementById("showResultsButton").addEventListener("click", function() {
+  displayResults();
+});
+
+function displayResults() {
+  var resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = "";
+  
+  for (var candidate in voteCount) {
+    var result = document.createElement("p");
+    result.innerHTML = candidate + ": " + voteCount[candidate] + " votes";
+    result.className = candidate;
+    resultsDiv.appendChild(result);
+  }
+}
+
+function getUserIP() {
+  // Make an API call to get the user's IP address
+  // Replace <YOUR_API_KEY> with your actual API key
+  var apiUrl = "https://api.ipify.org?format=json";
+  
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", apiUrl, false);
+  xhr.send();
+  
+  if (xhr.status === 200) {
+    var response = JSON.parse(xhr.responseText);
+    return response.ip;
+  }
+  
+  return null;
+}
+  </script>
 </body>
-</html>
+  </html>
